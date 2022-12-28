@@ -41,6 +41,8 @@ Parameters:
     Default: 192.168.96.0/19
     Description: CidrBlock for private worker subnet 02 within the VPC
   
+  # Cluster subnets are used for cluster creation/upgrade
+  # Should not deploy worker nodes in cluster subnets
   PrivateClusterSubnet01Block:
     Type: String
     Default: 192.168.128.0/28
@@ -145,6 +147,8 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway02
 
+  # 1 NAT gateway for each AZ to ensure zone-independent architecture 
+  # and reduce cross AZ expenditures
   NatGateway01:
     DependsOn:
     - NatGatewayEIP1
@@ -185,6 +189,7 @@ Resources:
     Properties:
       Domain: vpc
 
+  # Public subnet in AZ 1
   PublicWorkerSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -203,9 +208,10 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PublicWorkerSubnet01"
-      - Key: kubernetes.io/role/elb
+      - Key: kubernetes.io/role/elb  # this tag is required for public subnet
         Value: 1
 
+  # Public subnet in AZ 2
   PublicWorkerSubnet02:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -224,9 +230,10 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PublicWorkerSubnet02"
-      - Key: kubernetes.io/role/elb
+      - Key: kubernetes.io/role/elb  # this tag is required for public subnet
         Value: 1
 
+  # Private subnet in AZ 1
   PrivateWorkerSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -244,9 +251,10 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PrivateWorkerSubnet01"
-      - Key: kubernetes.io/role/internal-elb
+      - Key: kubernetes.io/role/internal-elb  # this tag is required for private subnet
         Value: 1
 
+  # Private subnet in AZ 2
   PrivateWorkerSubnet02:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -264,9 +272,10 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PrivateWorkerSubnet02"
-      - Key: kubernetes.io/role/internal-elb
+      - Key: kubernetes.io/role/internal-elb  # this tag is required for private subnet
         Value: 1
 
+  # Private cluster sunbet in AZ 1
   PrivateClusterSubnet01:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -284,9 +293,10 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PrivateClusterSubnet01"
-      - Key: kubernetes.io/role/internal-elb
+      - Key: kubernetes.io/role/internal-elb  # this tag is required for private subnet
         Value: 1
     
+  # Private cluster sunbet in AZ 2
   PrivateClusterSubnet02:
     Type: AWS::EC2::Subnet
     Metadata:
@@ -304,7 +314,7 @@ Resources:
       Tags:
       - Key: Name
         Value: !Sub "${AWS::StackName}-PrivateClusterSubnet02"
-      - Key: kubernetes.io/role/internal-elb
+      - Key: kubernetes.io/role/internal-elb  # this tag is required for private subnet
         Value: 1
 
   PublicWorkerSubnet01RouteTableAssociation:
