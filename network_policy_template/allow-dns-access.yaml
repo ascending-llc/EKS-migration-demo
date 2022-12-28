@@ -1,0 +1,22 @@
+# network poclicy to allow pods to query CoreDNS for name resolution
+# Need to label namespace kube-system first - kubectl label namespace kube-system name=kube-system
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-access
+  namespace: default
+spec:
+  podSelector:
+    matchLabels: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53
