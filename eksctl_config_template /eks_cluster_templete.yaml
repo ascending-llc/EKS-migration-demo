@@ -1,0 +1,17 @@
+# Template config file to creat an EKS cluster in existing vpc 
+# with 2 /28 cidr subnets using eksctl
+
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: cluster-in-existing-vpc-eksctl                       # cluster name
+  region: us-east-1
+
+vpc:
+  id: vpc-0181e34c18a0b0bf6                                  # VPC id for EKS cluster
+  subnets:
+    private:
+      us-east-1b: { id: subnet-0162c8074654de9f6 }           # cluster subnet 1
+      us-east-1c: { id: subnet-0c5b2460d307f813a }           # cluster subnet 2
