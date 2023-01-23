@@ -2,24 +2,9 @@
 # This terraform template creates an EKS cluster with a self-mananged nodegroup 
 # and one EKS-managed nodegroup. The cluster admin is set during cluster creation.
 #################################################################################
-provider "aws" {
-  region = var.region
-}
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-
-}
-data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_name
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_name
-}
 
 module "eks" {
+
   source  = "terraform-aws-modules/eks/aws"
   version = "19.4.2"
 
@@ -27,6 +12,15 @@ module "eks" {
   cluster_version = var.cluster_version
 
   cluster_endpoint_public_access  = var.cluster_endpoint_public_access
+  
+  # Do not create kms key during cluster creation,
+  # create before and pass the key arn to the cluster
+  create_kms_key = false
+  cluster_encryption_config = {
+      provider_key_arn = aws_kms_key.eks.arn
+      resources        = ["secrets"]
+    }
+  
 
   cluster_addons = {
     coredns = {
@@ -43,6 +37,7 @@ module "eks" {
   vpc_id                   = var.vpc_id
   subnet_ids               = var.subnet_ids
   control_plane_subnet_ids = var.control_plane_subnet_ids
+
 
   # Self Managed Node Group(s)
   self_managed_node_group_defaults = {
@@ -68,7 +63,7 @@ module "eks" {
       max_size     = 2
       desired_size = 1
       # Use spot instance for self managed node group
-      instance_market_options = {market_type = "spot"}
+      # instance_market_options = {market_type = "spot"}
 
     }
 

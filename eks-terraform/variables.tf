@@ -22,6 +22,44 @@ variable "region" {
   default     = "us-east-1"
   
 }
+###############################################################################
+# KMS Key Separate  
+###############################################################################
+variable "enable_default_policy" {
+  description = "Specifies whether to enable the default key policy. Defaults to `false`"
+  type        = bool
+  default     = false
+}
+
+variable "key_owners" {
+  description = "A list of IAM ARNs for those who will have full key permissions (`kms:*`)"
+  type        = list(string)
+  default     = []
+}
+
+variable "key_administrators" {
+  description = "A list of IAM ARNs for [key administrators](https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-default.html#key-policy-default-allow-administrators). If no value is provided, the current caller identity is used to ensure at least one key admin is available"
+  type        = list(string)
+  default     = []
+}
+
+variable "key_users" {
+  description = "A list of IAM ARNs for [key users](https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-default.html#key-policy-default-allow-users)"
+  type        = list(string)
+  default     = []
+}
+
+variable "key_service_users" {
+  description = "A list of IAM ARNs for [key service users](https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-default.html#key-policy-service-integration)"
+  type        = list(string)
+  default     = []
+}
+
+variable "key_aliases" {
+  description = "A list of aliases to create. Note - due to the use of `toset()`, values must be static strings and not computed values"
+  type        = list(string)
+  default     = []
+}
 
 ################################################################################
 # Cluster
@@ -138,7 +176,7 @@ variable "cluster_timeouts" {
 }
 
 ################################################################################
-# KMS Key
+# KMS Key in EKS Module
 ################################################################################
 
 variable "create_kms_key" {

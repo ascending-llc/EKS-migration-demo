@@ -32,9 +32,9 @@ resource "kubernetes_secret_v1" "ebs-csi-controller" {
     }
   }
   
-  # comment out this line and terraform apply if you see 'secret not found' error 
-  # and then uncomment and terraform apply again
+  # apply again if secret is not created at the first time
   type = "kubernetes.io/service-account-token"
+  wait_for_service_account_token = false
 
 }
 
@@ -51,7 +51,7 @@ module "iam_eks_role_ebs" {
   oidc_providers = {
     one = {
       provider_arn               = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-irsa"]
     }
   }
 
