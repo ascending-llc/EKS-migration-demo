@@ -74,8 +74,8 @@ resource "kubernetes_secret_v1" "mysql-secret" {
   }
 
   data = {
-    username = "admin"
-    password = "P4ssw0rd"
+    username = var.db_username
+    password = var.db_password
   }
 
   type = "kubernetes.io/basic-auth"
