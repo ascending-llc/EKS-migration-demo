@@ -124,3 +124,12 @@ data "aws_iam_policy_document" "this" {
     }
   }
 }
+
+# Grant for the cluster access
+resource "aws_kms_grant" "cluster-access" {
+  name              = "my-cluster-grant"
+  key_id             =  aws_kms_key.eks.key_id
+  grantee_principal = module.eks.cluster_iam_role_arn
+  operations        = ["DescribeKey"]
+
+}

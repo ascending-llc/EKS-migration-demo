@@ -24,3 +24,30 @@ resource "helm_release" "aws-ebs-csi-driver" {
     value = "${kubernetes_service_account_v1.ebs-csi-controller.metadata.0.name}"
   }
 }
+
+###############################################################
+# kube-ops-view
+###############################################################
+resource "helm_release" "kube-ops-view" {
+  name       = "kube-ops-view"
+
+  repository = "https://christianknell.github.io/helm-charts"
+  chart      = "kube-ops-view"
+
+  set {
+    name = "service.port"
+    value = 90
+  }
+}
+
+###############################################################
+# Metrics Server
+###############################################################
+resource "helm_release" "eks-metrics-server" {
+  name       = "eks-metrics-server"
+  namespace = "kube-system"
+
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  chart      = "metrics-server"
+
+}

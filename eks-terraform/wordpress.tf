@@ -224,6 +224,15 @@ resource "kubernetes_deployment_v1" "wordpress-frontend" {
         container {
           image = "wordpress:4.8-apache"
           name  = "wordpress"
+          
+          resources {
+            limits = {
+              cpu    = "0.5"
+            }
+            requests = {
+              cpu    = "200m"
+            }
+          }
           env {
             name = "WORDPRESS_DB_HOST"
             value = "wordpress-mysql"

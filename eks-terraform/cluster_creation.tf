@@ -12,7 +12,8 @@ module "eks" {
   cluster_version = var.cluster_version
 
   cluster_endpoint_public_access  = var.cluster_endpoint_public_access
-  
+  cluster_enabled_log_types = var.cluster_enabled_log_types
+
   # Do not create kms key during cluster creation,
   # create before and pass the key arn to the cluster
   create_kms_key = false
@@ -44,29 +45,33 @@ module "eks" {
 
     instance_type                          = "t3.small"
     update_launch_template_default_version = true
+
     # enable discovery of autoscaling groups by cluster-autoscaler
     autoscaling_group_tags = {
-      "k8s.io/cluster-autoscaler/enabled" : true,
+      "k8s.io/cluster-autoscaler/enabled" : "true",
       "k8s.io/cluster-autoscaler/${var.cluster_name}" : "owned",
     }
     iam_role_additional_policies = {
       AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
     }
+    tags = {
+      "k8s.io/cluster-autoscaler/enabled" : "true",
+      "k8s.io/cluster-autoscaler/${var.cluster_name}" : "owned",
+      }
 
   }
 
   self_managed_node_groups = {
     sng-1 = {
       name         = "self-nodegroup-1"
-      bootstrap_extra_args = "--kubelet-extra-args '--node-labels=node.kubernetes.io/lifecycle=spot'"
       min_size     = 1
       max_size     = 2
       desired_size = 1
       # Use spot instance for self managed node group
       # instance_market_options = {market_type = "spot"}
-
+      # bootstrap_extra_args = "--kubelet-extra-args '--node-labels=node.kubernetes.io/lifecycle=spot'"
+  
     }
-
   }
 
   # EKS Managed Node Group(s)
